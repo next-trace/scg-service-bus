@@ -1,0 +1,135 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  concurrency: 4
+
+# v2: output.formats is a MAP keyed by format name (text/json/tab/html/…)
+output:
+  formats:
+    text:
+      # closest to "colored-line-number"
+      print-issued-lines: true
+      print-linter-name: true
+      # colors: true   # (default)
+  # Optional v2 options live under output now (uncomment if you use them)
+  # show-stats: true
+  # uniq-by-line: true
+  # sort-order: source
+
+# v2: code formatters moved out of linters
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+    - gofumpt
+  # settings:
+  #   gofmt:
+  #     simplify: false
+
+linters:
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosec
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - staticcheck         # (gosimple/stylecheck are folded into staticcheck in v2)
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - revive
+    - copyloopvar
+  disable:
+    - prealloc
+    - lll
+
+  # v2: linter-specific settings now live under linters.settings
+  settings:
+    depguard:
+      rules:
+        main:
+          files: [ "**/*.go" ]
+          allow:
+            - $gostd
+            # allow this module and all of its subpackages
+            - github.com/next-trace/scg-service-bus
+            # third-party dependencies used by this module
+            - github.com/nats-io/nats.go
+            - github.com/rabbitmq/amqp091-go
+            - github.com/twmb/franz-go
+            - github.com/twmb/franz-go/pkg/kmsg
+            - github.com/google/uuid
+            - golang.org/x/text/unicode/norm
+
+    errcheck:
+      check-type-assertions: false
+
+    gocyclo:
+      min-complexity: 25
+
+    dupl:
+      threshold: 200
+
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+
+    misspell:
+      locale: US
+
+    unused:
+      check-exported: false
+
+    unparam:
+      check-exported: false
+
+    nakedret:
+      max-func-lines: 30
+
+    gosec:
+      severity: medium
+      confidence: medium
+      exclude-generated: true
+      exclude-tests: true
+
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+        - name: unused-parameter
+          disabled: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  # your ask: ignore examples/
+  exclude-dirs:
+    - examples
+
+  # keep your test-file relaxations
+  exclude-rules:
+    - path: ".*_test\\.go$"
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - revive
+        - lll
