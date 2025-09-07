@@ -435,3 +435,10 @@ func (b *Bus) Batch(ctx context.Context, cmds []cbus.Command, opts ...BatchOpt) 
 
 	return errors.Join(errs...)
 }
+
+// Close satisfies the contract.Bus lifecycle requirement. Current Bus has no
+// internal resources to release, so this is a no-op for now.
+func (b *Bus) Close() error { return nil }
+
+// Compile-time assertion: ensure *servicebus.Bus implements the contract Bus.
+var _ cbus.Bus = (*Bus)(nil)

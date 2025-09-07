@@ -168,6 +168,29 @@ ad.Propagator = hp
 bus := servicebus.New(ad, ad, nil)
 ```
 
+## Contracts-first Bus and Memory helper
+
+- A minimal contract/bus.Bus interface is available for consumers that want to depend only on contracts (no concrete servicebus package).
+- For quick setup in tests or libraries, use memory.New() to get a cbus.Bus backed by the in-memory adapter.
+
+Example:
+
+```go
+import (
+    cbus "github.com/next-trace/scg-service-bus/contract/bus"
+    "github.com/next-trace/scg-service-bus/memory"
+)
+
+func example() {
+    var bus cbus.Bus
+    bus, cleanup := memory.New()
+    defer cleanup()
+
+    _ = bus.BindCommandOf(MyCmd{}, func(ctx context.Context, v any) error { return nil })
+    _ = bus.Dispatch(context.Background(), MyCmd{})
+}
+```
+
 ## Adapters
 All adapters satisfy contract/bus.Adapter (both JobEnqueuer and EventPublisher) or subsets thereof. Wire them into servicebus.New(enqueuer, publisher, logger).
 
